@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         mSendRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendRequestWithHttpURLConnection();
+
             }
         });
         mResponseText = (TextView) findViewById(response_text);
@@ -47,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
                     reader = new BufferedReader(new InputStreamReader(in));
                     StringBuilder response = new StringBuilder();
                     String line = null;
+                   /* connection.setRequestMethod("POST");
+                    DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+                    out.writeBytes("username=admin&password=123456");*/
                     while ((line = reader.readLine()) != null) {
                         response.append(line);
                     }
