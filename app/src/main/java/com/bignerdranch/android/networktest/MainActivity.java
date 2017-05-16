@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String url = "http://10.0.2.2:8081/LeaveMessageBorderProject/NewFile.xml";
+                String url = "https://api.douban.com/v2/book/1220562";
                 String contents = null;
                 OkHttpClient client = new OkHttpClient();
                 Request request = new Request.Builder()
@@ -75,10 +77,27 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
      //           parseXMLWithPull(contents);
-                parseXMLWithSAX(contents);
+     //           parseXMLWithSAX(contents);
+                parseJSONWithJSONObject(contents);
                 showResponse(contents);
             }
         }).start();
+    }
+
+    private void parseJSONWithJSONObject(String contents) {
+        try {
+            JSONObject jsonObject = new JSONObject(contents);
+            JSONArray jsonArray = jsonObject.getJSONArray("tags");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject itemObject = jsonArray.getJSONObject(i);
+                Log.i(TAG, "parseJSONWithJSONObject: count: " + itemObject.getString("count"));
+                Log.i(TAG, "parseJSONWithJSONObject: name: " + itemObject.getString("name"));
+                Log.i(TAG, "parseJSONWithJSONObject: title: " + itemObject.getString("title"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void parseXMLWithSAX(String XMLString) {
