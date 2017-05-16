@@ -16,6 +16,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 import static com.bignerdranch.android.networktest.R.id.response_text;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,10 +35,32 @@ public class MainActivity extends AppCompatActivity {
         mSendRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendRequestWithHttpURLConnection();
+     //           sendRequestWithHttpURLConnection();
+                sendRequestWithOkHttp();
             }
         });
         mResponseText = (TextView) findViewById(response_text);
+    }
+
+    private void sendRequestWithOkHttp() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String url = "http://www.baidu.com/";
+                String contents = null;
+                OkHttpClient client = new OkHttpClient();
+                Request request = new Request.Builder()
+                        .url(url)
+                        .build();
+                try {
+                    Response response = client.newCall(request).execute();
+                    contents =  response.body().string();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                showResponse(contents);
+            }
+        }).start();
     }
 
     private void sendRequestWithHttpURLConnection() {
