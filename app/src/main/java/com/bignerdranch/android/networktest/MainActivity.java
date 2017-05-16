@@ -59,7 +59,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
      //           sendRequestWithHttpURLConnection();
-                sendRequestWithOkHttp();
+     //           sendRequestWithOkHttp();
+                HttpUtil.sendRequestWithHttpURLConnection("https://www.baidu.com/", new HttpCallbackListener() {
+                    @Override
+                    public void onFinish(String response) {
+                        showResponse(response);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+
+                    }
+                });
             }
         });
         mResponseText = (TextView) findViewById(response_text);
