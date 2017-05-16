@@ -4,8 +4,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -29,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         mSendRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                sendRequestWithHttpURLConnection();
             }
         });
         mResponseText = (TextView) findViewById(response_text);
@@ -39,40 +41,76 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                HttpURLConnection connection = null;
-                BufferedReader reader = null;
+                HttpURLConnection urlConnection = null;
                 try {
-                    URL url = new URL("https://www.baidu.com");
-                    connection =  (HttpURLConnection) url.openConnection();
-                    InputStream in = connection.getInputStream();
-                    reader = new BufferedReader(new InputStreamReader(in));
+                    URL url = new URL("https://www.baidu.com/");
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    readStream(in);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }finally {
+                    if (urlConnection != null) {
+                        urlConnection.disconnect();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    private void readStream(InputStream in) {
+        BufferedReader reader = null;
+        try {
+            StringBuilder response = new StringBuilder();
+            String line;
+            reader = new BufferedReader(new InputStreamReader(in));
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            showResponse(response.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+  /*  private void sendRequestWithHttpURLConnection() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpURLConnection connection = null;
+                try {
+                    URL url = new URL("https://www.baidu.com/");
+                    connection = (HttpURLConnection) url.openConnection();
+                    InputStream in = new BufferedInputStream(connection.getInputStream());
+                    readStream(in);
+                    *//*reader = new BufferedReader(new InputStreamReader(in));
                     StringBuilder response = new StringBuilder();
-                    String line = null;
-                   /* connection.setRequestMethod("POST");
-                    DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-                    out.writeBytes("username=admin&password=123456");*/
+                    String line;
+                   // connection.setRequestMethod("POST");
+                 //   DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+                //    out.writeBytes("username=admin&password=123456");
                     while ((line = reader.readLine()) != null) {
                         response.append(line);
                     }
-                    showResponse(response.toString());
+                    showResponse(response.toString());*//*
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
-                    if (reader != null) {
-                        try {
-                            reader.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
                     if (connection != null) {
                         connection.disconnect();
                     }
                 }
             }
         }).start();
-    }
+    }*/
 
     private void showResponse(final String response) {
         runOnUiThread(new Runnable() {
