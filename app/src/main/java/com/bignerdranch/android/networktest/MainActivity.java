@@ -8,6 +8,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.xml.sax.Attributes;
@@ -26,8 +29,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
@@ -78,10 +83,32 @@ public class MainActivity extends AppCompatActivity {
                 }
      //           parseXMLWithPull(contents);
      //           parseXMLWithSAX(contents);
-                parseJSONWithJSONObject(contents);
+      //          parseJSONWithJSONObject(contents);
+                parseJSONWithGSON(contents);
                 showResponse(contents);
             }
         }).start();
+    }
+
+    private void parseJSONWithGSON(String contents) {
+        try {
+            JSONObject jObject = new JSONObject(contents);
+            JSONArray jArray = jObject.getJSONArray("tags");
+            String jAString = jArray.toString();
+            Gson gson = new Gson();
+
+// Deserialization
+            List<Tags> tags = gson.fromJson(jAString, new TypeToken<List<Tags>>(){}.getType());
+            for (Tags t:
+                    tags) {
+                Log.i(TAG, "parseJSONWithGSON: name:" + t.getName());
+                Log.i(TAG, "parseJSONWithGSON: count:" + t.getCount());
+            }
+// ==> ints2 is same as ints
+        } catch (Exception e) {
+
+        }
+
     }
 
     private void parseJSONWithJSONObject(String contents) {
