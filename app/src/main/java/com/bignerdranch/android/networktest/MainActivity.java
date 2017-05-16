@@ -37,6 +37,8 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
      //           sendRequestWithHttpURLConnection();
      //           sendRequestWithOkHttp();
-                HttpUtil.sendRequestWithHttpURLConnection("https://www.baidu.com/", new HttpCallbackListener() {
+     /*           HttpUtil.sendRequestWithHttpURLConnection("https://www.baidu.com/", new HttpCallbackListener() {
                     @Override
                     public void onFinish(String response) {
                         showResponse(response);
@@ -69,6 +71,18 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onError(Exception e) {
 
+                    }
+                });*/
+                HttpOKUtil.sendRequestWithOkHttp("http://www.baidu.com", new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        showResponse(response.toString());
+                        response.close();
                     }
                 });
             }
