@@ -8,6 +8,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -21,11 +27,15 @@ import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 import static com.bignerdranch.android.networktest.R.id.response_text;
+import static com.bignerdranch.android.networktest.R.id.split_action_bar;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -64,10 +74,71 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                parseXMLWithPull(contents);
+     //           parseXMLWithPull(contents);
+                parseXMLWithSAX(contents);
                 showResponse(contents);
             }
         }).start();
+    }
+
+    private void parseXMLWithSAX(String XMLString) {
+        try {
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            XMLReader reader = factory.newSAXParser().getXMLReader();
+            MyHandler handler = new MyHandler();
+            reader.setContentHandler(handler);
+            reader.parse(new InputSource(new StringReader(XMLString)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class MyHandler extends DefaultHandler{
+        private String mNodeName;
+        private StringBuilder mId;
+        private StringBuilder mVersion;
+        private StringBuilder mName;
+
+        @Override
+        public void startDocument() throws SAXException {
+            super.startDocument();
+            mId = new StringBuilder();
+            mVersion = new StringBuilder();
+            mName = new StringBuilder();
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+            super.startElement(uri, localName, qName, attributes);
+            mNodeName = localName;
+        }
+
+        @Override
+        public void characters(char[] ch, int start, int length) throws SAXException {
+            super.characters(ch, start, length);
+            if (mNodeName.equals("id")) {
+                mId.append(ch, start, length);
+            } else if (mNodeName.equals("name")) {
+                mName.append(ch, start, length);
+            } else if (mNodeName.equals("version")) {
+                mVersion.append(ch, start, length);
+            }
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            super.endElement(uri, localName, qName);
+            if (localName.equals("app")) {
+                Log.i(TAG, "endElement: id " + mId.toString().trim());
+                Log.i(TAG, "endElement: name " + mName.toString().trim());
+                Log.i(TAG, "endElement: version" + mVersion.toString().trim());
+                mId.setLength(0);
+                mName.setLength(0);
+                mVersion.setLength(0);
+            }
+        }
+
+
     }
 
     private void parseXMLWithPull(String XMLString) {
